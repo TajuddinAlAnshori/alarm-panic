@@ -1,11 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-    <!--
-
-    @Programith
-
-    //-->
-
     <head>
         <meta charset="utf-8">
         <link rel="stylesheet" href="style.css">
@@ -18,22 +12,66 @@
             <p id="time"></p>
         </div>
 
+        <div class="alarm">
+            <h2>Set Alarm</h2>
+            <label for="alarmTime">Set Time (HH:MM:SS):</label>
+            <input type="time" id="alarmTime" required>
+            <button onclick="setAlarm()">Set Alarm</button>
+            <button onclick="stopAlarm()">Stop Alarm</button>
+            <p id="alarmMessage"></p>
+        </div>
+
+        <!-- Audio element for alarm sound -->
+        <audio id="alarmSound" src="alarm.mp3" preload="auto"></audio>
+
         <script>
             const WEEK = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+            let alarmTime = null; // To store the alarm time
+            let alarmSet = false;
+            const alarmSound = document.getElementById("alarmSound");
+            alarmSound.loop = true; // Set audio to loop
 
             function updateTime() {
                 var now = new Date();
 
                 document.getElementById("time").innerText =
-                        zeroPadding(now.getHours(), 2) + ":" +
-                        zeroPadding(now.getMinutes(), 2) + ":" +
-                        zeroPadding(now.getSeconds(), 2);
+                    zeroPadding(now.getHours(), 2) + ":" +
+                    zeroPadding(now.getMinutes(), 2) + ":" +
+                    zeroPadding(now.getSeconds(), 2);
 
                 document.getElementById("date").innerText =
-                        now.getFullYear() + "-" +
-                        zeroPadding(now.getMonth() + 1, 2) + "-" +
-                        zeroPadding(now.getDate(), 2) + " " +
-                        WEEK[now.getDay()];
+                    now.getFullYear() + "-" +
+                    zeroPadding(now.getMonth() + 1, 2) + "-" +
+                    zeroPadding(now.getDate(), 2) + " " +
+                    WEEK[now.getDay()];
+
+                // Check if it's time to trigger the alarm
+                if (alarmSet && alarmTime === zeroPadding(now.getHours(), 2) + ":" + zeroPadding(now.getMinutes(), 2) + ":" + zeroPadding(now.getSeconds(), 2)) {
+                    triggerAlarm();
+                }
+            }
+
+            function setAlarm() {
+                let inputTime = document.getElementById("alarmTime").value;
+                if (inputTime) {
+                    alarmTime = inputTime + ":00"; // Add seconds as 00 to match the format HH:MM:SS
+                    alarmSet = true;
+                    document.getElementById("alarmMessage").innerText = "Alarm set for " + alarmTime;
+                } else {
+                    alert("Please enter a valid time.");
+                }
+            }
+
+            function triggerAlarm() {
+                alarmSet = false; // Reset the alarm
+                alarmSound.play(); // Play the alarm sound
+                document.getElementById("alarmMessage").innerText = "ALARM! Time reached: " + alarmTime;
+            }
+
+            function stopAlarm() {
+                alarmSound.pause(); // Stop the alarm sound
+                alarmSound.currentTime = 0; // Reset audio to the beginning
+                document.getElementById("alarmMessage").innerText = "Alarm stopped.";
             }
 
             updateTime();
